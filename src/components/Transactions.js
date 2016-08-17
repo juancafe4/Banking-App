@@ -9,7 +9,7 @@ const Transactions = React.createClass({
       account: {},
       showModalAdd: false,
       showModalEdit: false,
-      edditTransaction: {},
+      editTransaction: {},
     }
   },
   componentWillMount() {
@@ -29,7 +29,7 @@ const Transactions = React.createClass({
     this.setState({showModalAdd: true});
   },
   openEditModal(row) {
-    this.setState({showModalEdit: true, edditTransaction: row});
+    this.setState({showModalEdit: true, editTransaction: row});
   },
   closeEditModal() {
     this.setState({showModalEdit: false});
@@ -58,6 +58,37 @@ const Transactions = React.createClass({
         },
         body: JSON.stringify({
           transactions: transIds,
+          total: total
+        })
+      });
+    })
+    .then(() => {
+      return fetch('/api/accounts')
+    })
+    .then(Response => Response.json())
+    .then(data => {
+        this.setState({account: data[0]})
+    })
+    .catch(err => {
+      console.log('Error updating')
+    })
+  },
+  edit(obj, id, num) {
+    let total = this.state.account.total + num
+    fetch(`/api/transactions/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(obj)
+    })
+    .then(() => {
+      return fetch(`/api/accounts/${this.state.account._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
           total: total
         })
       });
@@ -130,7 +161,7 @@ const Transactions = React.createClass({
         <TransactionTable openModal={this.openEditModal} transactions={this.state.account.transactions}/>
 
         <AddModal create={this.addTransaction} show={this.state.showModalAdd} onHide={this.closeAddModal}/>
-        <EditModal remove={this.removeTransaction} transaction={this.state.edditTransaction} show={this.state.showModalEdit} onHide={this.closeEditModal}/>
+        <EditModal edit={this.edit} remove={this.removeTransaction} transaction={this.state.editTransaction} show={this.state.showModalEdit} onHide={this.closeEditModal}/>
       </div>
     )
   }

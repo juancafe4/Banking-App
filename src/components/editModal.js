@@ -8,15 +8,18 @@ const EditModal = React.createClass({
       description: "",
       store: "",
       type: "",
+      prevAmount: 0 
     }
   },
   componentWillReceiveProps(nextProps) {
+    console.log(nextProps)
     this.setState(
       {
-        amount: nextProps.amount,
-        description: nextProps.description,
-        type: nextProps.type,
-        store: nextProps.store
+        amount: nextProps.transaction.amount,
+        description: nextProps.transaction.description,
+        type: nextProps.transaction.type,
+        store: nextProps.transaction.store,
+        prevAmount: nextProps.transaction.amount
       });
   },
   getValidationState() {
@@ -39,15 +42,19 @@ const EditModal = React.createClass({
   selectType(e) {
     this.setState({type: e.target.value})
   },
-  addTransaction(e) {
+  edit(e) {
     if(this.state.amount && this.state.description
       && this.state.store && this.state.type !== "Select") {
-      this.props.create({
+      
+      let num = this.state.type === 'Credit'  ? this.state.prevAmount * -1 : this.state.prevAmount
+      let transNum = this.state.type === 'Debit'  ? this.state.amount * -1 : this.state.amount
+      let total = parseFloat(num) + parseFloat(transNum)
+      this.props.edit({
         amount: this.state.amount,
         description: this.state.description,
         type: this.state.type,
         store: this.state.store
-      });
+      }, this.props.transaction._id, total);
       this.props.onHide();
     }
   },
@@ -57,6 +64,7 @@ const EditModal = React.createClass({
 
   },
   render() {
+    console.log('edit ', this.state.amount)
     if (this.props.transaction) 
       return (
         <Modal show={this.props.show} onHide={this.props.onHide}>
@@ -70,7 +78,7 @@ const EditModal = React.createClass({
               validationState={this.getValidationState()}>
                 <FormControl
                   type="number"
-                  value={this.props.transaction.amount}
+                  value={this.state.amount}
                   placeholder="Enter Amount $"
                   onChange={this.handleAmount}
                 />
@@ -83,13 +91,13 @@ const EditModal = React.createClass({
 
                 <FormControl
                   type="text"
-                  value={this.props.transaction.description}
+                  value={this.state.description}
                   placeholder="Enter Description"
                   onChange={this.handleDescription}
                 />
                 <FormControl
                   type="text"
-                  value={this.props.transaction.store}
+                  value={this.state.store}
                   placeholder="Enter Company"
                   onChange={this.handleStore}
                 />
@@ -101,7 +109,7 @@ const EditModal = React.createClass({
               <Button onClick={this.remove} bsStyle="danger">
                 Delete Transaction
               </Button>
-              <Button onClick={this.addTransaction} type="button">
+              <Button onClick={this.edit} bsStyle="success" type="button">
                 Save Transaction
               </Button>
               <Button onClick={this.props.onHide}>Close</Button>
