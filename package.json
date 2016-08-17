@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "postinstall": "webpack --config ./webpack-prod.config.js --progress --colors",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --watch --inline --hot"
