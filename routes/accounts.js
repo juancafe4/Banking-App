@@ -17,8 +17,9 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   Account.findByIdAndUpdate(req.params.id, {
-    $set: req.body}, (err, updatedAccount) => {
-      res.status(err ? 400 : 200).send(err || updatedAccount)
+    $set: req.body}, err => {
+      console.log(updatedAccount)
+      res.status(err ? 400 : 200).send(err || "Account was updated")
     });
 });
 

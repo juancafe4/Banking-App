@@ -1,6 +1,6 @@
 let express = require('express');
 let router = express.Router();
-let Transaction = require('../models/account')
+let Transaction = require('../models/transaction')
 
 router.get('/', (req, res) => {
   Transaction.find({}, (err, transactions) => {
@@ -17,8 +17,8 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   Transaction.findByIdAndUpdate(req.params.id, {
-    $set: req.body}, (err, updatedTransaction) => {
-      res.status(err ? 400 : 200).send(err || updatedTransaction)
+    $set: req.body}, err => {
+      res.status(err ? 400 : 200).send(err || "Transaction was updated")
     });
 });
 
