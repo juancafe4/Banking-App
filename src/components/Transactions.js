@@ -1,5 +1,6 @@
 import React from 'react'
 import AddModal from './addModal'
+import EditModal from './editModal'
 import {Button, Table, Col, Row, Well} from 'react-bootstrap'
 
 const Transactions = React.createClass({
@@ -7,6 +8,8 @@ const Transactions = React.createClass({
     return {
       account: {},
       showModalAdd: false,
+      showModalEdit: false,
+      edditTransaction: {},
     }
   },
   componentWillMount() {
@@ -24,6 +27,12 @@ const Transactions = React.createClass({
   },
   openAddModal(e) {
     this.setState({showModalAdd: true});
+  },
+  openEditModal(row) {
+    this.setState({showModalEdit: true, edditTransaction: row});
+  },
+  closeEditModal() {
+    this.setState({showModalEdit: false});
   },
   addTransaction(newTrans) {
     fetch('/api/transactions', {
@@ -64,6 +73,35 @@ const Transactions = React.createClass({
       console.log('Error updating')
     })
   },
+  removeTransaction(id, num) {
+    this.setState({showModalEdit: false});
+    let total = parseFloat(this.state.account.total) + num
+    fetch(`/api/transactions/${id}`, {
+      method: 'DELETE'
+    })
+    .then(() => {
+      return fetch(`/api/accounts/${this.state.account._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          total: total
+        })
+      })
+    })
+    .then(() => {
+      return fetch('/api/accounts')
+    })
+    .then(Response => Response.json())
+    .then(data => {
+        this.setState({account: data[0]})
+    })
+    .catch(err => {
+      console.log('Error deleting')
+    })
+
+  },
   render() {
     let total = null 
     if (this.state.account.total) {
@@ -84,14 +122,15 @@ const Transactions = React.createClass({
           <Col xs={6}>
             <Well bsSize="small">
               {total}
-              <Button onClick={this.openAddModal}  bsStyle="primary">Add Transaction</Button>
+              <Button onClick={this.openAddModal} bsStyle="primary">Add Transaction</Button>
               
             </Well>
           </Col>
         </Row>
-        <TransactionTable transactions={this.state.account.transactions}/>
+        <TransactionTable openModal={this.openEditModal} transactions={this.state.account.transactions}/>
 
         <AddModal create={this.addTransaction} show={this.state.showModalAdd} onHide={this.closeAddModal}/>
+        <EditModal remove={this.removeTransaction} transaction={this.state.edditTransaction} show={this.state.showModalEdit} onHide={this.closeEditModal}/>
       </div>
     )
   }
@@ -104,14 +143,14 @@ const TransactionTable = React.createClass({
   componentWillReceiveProps(nextProps) {
     this.setState({transactions: nextProps.transactions})
   },
-  editModal(e) {
-    console.log('row clicked')
+  editModal(val) {
+    this.props.openModal(val)
   },
   render() {
     let trs = null
     if (this.state.transactions) {
       trs = this.state.transactions.map(val => {
-        return <tr onClick={this.editModal}key={val._id}> 
+        return <tr onClick={this.editModal.bind(null, val)}key={val._id}> 
                 <td>${val.amount.toFixed(2)}</td>
                 <td>{val.time}</td>
                 <td>{val.type}</td>
