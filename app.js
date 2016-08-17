@@ -25,8 +25,8 @@ app.use(bodyParser.urlencoded({ extended: true}))
 
 app.use(express.static('public'));
 
-app.use('/api/restaurant', require('./routes/restaurants'))
-app.use('/api/menu', require('./routes/menus'))
+app.use('/api/accounts', require('./routes/accounts'))
+app.use('/api/transactions', require('./routes/transactions'))
 
 //Routes
 // app.get('*', (req, res) => {

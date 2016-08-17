@@ -4,12 +4,9 @@ let transactionSchema = new mongoose.Schema({
   amount: {type: Number, required: true},
   time: {type: Date, default: Date.now },
   description: {type: String, required: true},
-  store: {type: String, required: true},
-  transactions: [
-    {type: mongoose.Schema.Types.ObjectId, ref: 'Transaction'}
-  ]
+  store: {type: String, required: true}
 });
 
-let Account = mongoose.model('Account' , accountSchema);
+let Transaction = mongoose.model('Transaction' , transactionSchema);
 
-module.exports = Account;
+module.exports = Transaction;
