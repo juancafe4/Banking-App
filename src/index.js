@@ -1,9 +1,14 @@
 import React from 'react'
 import {render} from 'react-dom'
-
+import Transactions from './components/Transactions'
+import {Grid} from 'react-bootstrap'
 const App = React.createClass({
   render() {
-    return <h1>Banking Crap</h1>
+    return (
+        <Grid>
+          <Transactions />
+        </Grid>
+    )
   }
 });
 

@@ -31,6 +31,7 @@
     "mongoose": "^4.5.9",
     "morgan": "^1.7.0",
     "react": "^15.3.0",
+    "react-bootstrap": "^0.30.2",
     "react-dom": "^15.3.0",
     "react-router": "^2.6.1",
     "webpack": "^1.13.1",
