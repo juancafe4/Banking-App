@@ -34,7 +34,13 @@ const AddModal = React.createClass({
   addTransaction(e) {
     if(this.state.amount && this.state.description
       && this.state.store && this.state.type !== "Select") {
-      this.props.onHide()
+      this.props.create({
+        amount: this.state.amount,
+        description: this.state.description,
+        type: this.state.type,
+        store: this.state.store
+      });
+      this.props.onHide();
     }
   },
   render() {
@@ -48,7 +54,6 @@ const AddModal = React.createClass({
             <FormGroup
             controlId="formBasicText"
             validationState={this.getValidationState()}>
-              <ControlLabel>Working example with validation</ControlLabel>
               <FormControl
                 type="number"
                 value={this.state.amount}

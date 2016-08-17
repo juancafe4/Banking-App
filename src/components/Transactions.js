@@ -25,6 +25,45 @@ const Transactions = React.createClass({
   openAddModal(e) {
     this.setState({showModalAdd: true});
   },
+  addTransaction(newTrans) {
+    fetch('/api/transactions', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newTrans)
+    })
+    .then(Response => Response.json())
+    .then(data => {
+      let num = newTrans.type === 'Credit' ? newTrans.amount : newTrans.amount * -1
+    
+      let total = parseFloat(num) + this.state.account.total
+    
+      let transIds = this.state.account.transactions.map(val => val._id)
+      transIds = transIds.concat(data._id)
+
+      return fetch(`/api/accounts/${this.state.account._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          transactions: transIds,
+          total: total
+        })
+      });
+    })
+    .then(() => {
+      return fetch('/api/accounts')
+    })
+    .then(Response => Response.json())
+    .then(data => {
+        this.setState({account: data[0]})
+    })
+    .catch(err => {
+      console.log('Error updating')
+    })
+  },
   render() {
     let total = null 
     if (this.state.account.total) {
@@ -52,7 +91,7 @@ const Transactions = React.createClass({
         </Row>
         <TransactionTable transactions={this.state.account.transactions}/>
 
-        <AddModal show={this.state.showModalAdd} onHide={this.closeAddModal}/>
+        <AddModal create={this.addTransaction} show={this.state.showModalAdd} onHide={this.closeAddModal}/>
       </div>
     )
   }
@@ -65,12 +104,14 @@ const TransactionTable = React.createClass({
   componentWillReceiveProps(nextProps) {
     this.setState({transactions: nextProps.transactions})
   },
+  editModal(e) {
+    console.log('row clicked')
+  },
   render() {
     let trs = null
-    console.log(this.state.transactions)
     if (this.state.transactions) {
       trs = this.state.transactions.map(val => {
-        return <tr key={val._id}> 
+        return <tr onClick={this.editModal}key={val._id}> 
                 <td>${val.amount.toFixed(2)}</td>
                 <td>{val.time}</td>
                 <td>{val.type}</td>
